@@ -1,29 +1,49 @@
 {
   "expo": {
-    "name": "birtday205thrasya",
+    "name": "HBD Rasya",
     "slug": "birtday205thrasya",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFF4E0"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan QR codes to unlock birthday surprises!"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFF4E0"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.rizkyagusnaldykaliaa.birtday205thrasya",
+      "versionCode": 2,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to scan QR codes for birthday surprises!"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ff1800b1-09b5-48be-a135-22c702ca81ee"
+      }
     }
   }
 }
