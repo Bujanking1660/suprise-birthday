@@ -7,38 +7,38 @@ import {
   Animated,
   ScrollView,
   Platform,
+  Image,
 } from 'react-native';
 import { COLORS, CLEAN, FONTS } from '../theme';
 import Confetti from '../components/Confetti';
 import { playSparkle, playPop } from '../utils/sound';
-import { Heart } from 'lucide-react-native';
-import { MinimalLeaves } from '../components/Illustrations';
+import { Heart, ChevronLeft } from 'lucide-react-native';
 
 export default function LoveLetterScreen({ onBack }) {
   const [opened, setOpened] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Pulse animation for the unopened envelope
   useEffect(() => {
     if (!opened) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(scaleAnim, {
-            toValue: 1.05,
-            duration: 1000,
+          Animated.timing(pulseAnim, {
+            toValue: 1.06,
+            duration: 900,
             useNativeDriver: true,
           }),
-          Animated.timing(scaleAnim, {
+          Animated.timing(pulseAnim, {
             toValue: 1,
-            duration: 1000,
+            duration: 900,
             useNativeDriver: true,
           }),
         ])
       ).start();
     } else {
-      scaleAnim.stopAnimation();
+      pulseAnim.stopAnimation();
     }
   }, [opened]);
 
@@ -48,12 +48,12 @@ export default function LoveLetterScreen({ onBack }) {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1200,
+        duration: 1000,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 1200,
+        duration: 1000,
         useNativeDriver: true,
       }),
     ]).start();
@@ -61,28 +61,40 @@ export default function LoveLetterScreen({ onBack }) {
 
   return (
     <View style={styles.container}>
-      {/* ─── Elegant Header ─── */}
+      {/* ─── Header ─── */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => { playPop(); onBack(); }}>
-          <Text style={styles.backBtnText}>‹</Text>
+          <ChevronLeft size={22} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>A Letter For You</Text>
+        <Text style={styles.headerTitle}>A Letter For You 💌</Text>
+        <View style={{ width: 44 }} />
       </View>
 
       {!opened ? (
         <View style={styles.centerContent}>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={styles.topIllustration}
+            resizeMode="contain"
+          />
           <Text style={styles.hintText}>Tap the envelope to open your letter</Text>
+
           <TouchableOpacity activeOpacity={0.9} onPress={handleOpen}>
-            <Animated.View style={[styles.envelope, { transform: [{ scale: scaleAnim }] }]}>
+            <Animated.View style={[styles.envelope, { transform: [{ scale: pulseAnim }] }]}>
+              {/* Envelope flap decoration */}
               <View style={styles.envelopeFlap} />
-              <Heart size={40} color={COLORS.rose} fill={COLORS.rose} style={styles.waxSeal} />
-              <Text style={styles.envelopeText}>To: Rasya</Text>
-              
-              <View style={styles.illustrationContainer}>
-                <MinimalLeaves size={100} color={COLORS.text} />
+              {/* Wax seal */}
+              <View style={styles.waxSealCircle}>
+                <Heart size={24} color={COLORS.white} fill={COLORS.white} />
               </View>
+              <Text style={styles.envelopeText}>To: Rasya 💜</Text>
+              <Text style={styles.envelopeSubText}>From: Your Boyfriend</Text>
             </Animated.View>
           </TouchableOpacity>
+
+          <View style={styles.tapHintPill}>
+            <Text style={styles.tapHintText}>✨ Tap to open</Text>
+          </View>
         </View>
       ) : (
         <View style={{ flex: 1 }}>
@@ -97,12 +109,21 @@ export default function LoveLetterScreen({ onBack }) {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.letterScroll}
             >
+              {/* Icon top in letter */}
+              <View style={styles.letterIllustrationTop}>
+                <Image
+                  source={require('../../assets/icon.png')}
+                  style={styles.letterIconSmall}
+                  resizeMode="contain"
+                />
+              </View>
+
               <Text style={styles.greeting}>My Dearest Rasya,</Text>
-              
+
               <Text style={styles.paragraph}>
                 Happy Birth sayangku, cintaku, tadaaaa aku buat gift buat kamu, aku pengen ngasih sesuatu yang simple tapi effort, walau gak ratusan ribu, jutaan, sampe miliaran tapi aku buat ini pake niat dan sayang hehe.
               </Text>
-              
+
               <Text style={styles.paragraph}>
                 Aku kepikiran aja buat ngasih ini ke kamu, ide nya sih yang agak pusing, aku udah pernah buat gini gitu, tapi kok kurang bagus ya, makanya aku coba buat yang ini.
               </Text>
@@ -116,11 +137,12 @@ export default function LoveLetterScreen({ onBack }) {
               </Text>
 
               <View style={styles.signatureContainer}>
+                <View style={[styles.signatureHeartRow]}>
+                  <Heart size={18} color={COLORS.primary} fill={COLORS.primary} />
+                  <Heart size={14} color={COLORS.secondary} fill={COLORS.secondary} style={{ marginLeft: 4 }} />
+                </View>
                 <Text style={styles.signatureText}>With all my love,</Text>
                 <Text style={styles.signatureName}>Yours Boyfriend ❤️</Text>
-              </View>
-              <View style={styles.illustrationBottom}>
-                <MinimalLeaves size={80} color={COLORS.olive} />
               </View>
             </ScrollView>
           </Animated.View>
@@ -136,147 +158,183 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bg,
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 16,
+    paddingTop: Platform.OS === 'ios' ? 58 : 36,
+    paddingBottom: 14,
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
   backBtn: {
-    position: 'absolute',
-    left: 20,
-    top: Platform.OS === 'ios' ? 60 : 40,
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.text,
+    shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-    zIndex: 10,
-  },
-  backBtnText: {
-    fontSize: 28,
-    color: COLORS.text,
-    marginTop: -4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   headerTitle: {
-    fontSize: 16,
-    ...FONTS.heading,
+    fontSize: 18,
+    fontWeight: '800',
     color: COLORS.text,
   },
+
+  // ─── Closed Envelope ───
   centerContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 28,
+  },
+  topIllustration: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
   },
   hintText: {
-    ...FONTS.body,
-    fontSize: 16,
-    color: COLORS.text,
-    marginBottom: 40,
-    opacity: 0.7,
-    fontStyle: 'italic',
+    fontSize: 15,
+    color: COLORS.textSoft,
+    marginBottom: 28,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   envelope: {
-    width: 320,
-    height: 220,
+    width: 300,
+    height: 200,
     backgroundColor: COLORS.white,
-    borderRadius: 36,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.text,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
     shadowRadius: 20,
-    elevation: 5,
+    elevation: 8,
     overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
   },
   envelopeFlap: {
     position: 'absolute',
     top: 0,
     width: 0,
     height: 0,
-    borderLeftWidth: 160,
-    borderRightWidth: 160,
-    borderTopWidth: 110,
+    borderLeftWidth: 150,
+    borderRightWidth: 150,
+    borderTopWidth: 90,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderTopColor: COLORS.secondary,
-    opacity: 0.3,
+    borderTopColor: COLORS.purple2,
   },
-  waxSeal: {
-    marginBottom: 16,
+  waxSealCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
     zIndex: 2,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
   envelopeText: {
-    fontSize: 20,
-    ...FONTS.heading,
+    fontSize: 18,
+    fontWeight: '800',
     color: COLORS.text,
     zIndex: 2,
+    marginBottom: 4,
   },
-  illustrationContainer: {
-    position: 'absolute',
-    bottom: -20,
-    right: -20,
-    opacity: 0.5,
-    zIndex: 1,
+  envelopeSubText: {
+    fontSize: 13,
+    color: COLORS.textSoft,
+    zIndex: 2,
+    fontWeight: '500',
   },
+  tapHintPill: {
+    marginTop: 24,
+    backgroundColor: COLORS.purple1,
+    borderRadius: 50,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  tapHintText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+
+  // ─── Open Letter ───
   letterContainer: {
     flex: 1,
-    marginTop: 20,
+    marginHorizontal: 16,
+    marginTop: 8,
     backgroundColor: COLORS.white,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    shadowColor: COLORS.text,
-    shadowOffset: { width: 0, height: -5 },
-    shadowOpacity: 0.05,
-    shadowRadius: 15,
-    elevation: 10,
+    borderRadius: 32,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 6,
     overflow: 'hidden',
   },
   letterScroll: {
-    padding: 30,
+    padding: 28,
   },
-  greeting: {
-    fontSize: 28,
-    ...FONTS.heading,
-    color: COLORS.text,
-    marginBottom: 24,
-  },
-  paragraph: {
-    fontSize: 16,
-    ...FONTS.body,
-    lineHeight: 28,
+  letterIllustrationTop: {
+    alignItems: 'center',
     marginBottom: 20,
   },
+  letterIconSmall: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: 20,
+    letterSpacing: -0.3,
+  },
+  paragraph: {
+    fontSize: 15,
+    color: COLORS.textSoft,
+    lineHeight: 26,
+    marginBottom: 18,
+    fontWeight: '400',
+  },
   signatureContainer: {
-    marginTop: 30,
-    alignItems: 'flex-end',
-    borderTopWidth: 1,
+    marginTop: 24,
+    borderTopWidth: 1.5,
     borderTopColor: COLORS.border,
     paddingTop: 20,
+    alignItems: 'flex-end',
+  },
+  signatureHeartRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   signatureText: {
-    fontSize: 16,
-    ...FONTS.body,
+    fontSize: 14,
+    color: COLORS.textSoft,
     fontStyle: 'italic',
+    fontWeight: '400',
+    marginBottom: 4,
   },
   signatureName: {
-    fontSize: 20,
-    ...FONTS.heading,
-    marginTop: 4,
-    color: COLORS.rose,
-  },
-  illustrationBottom: {
-    alignItems: 'center',
-    marginTop: 20,
-    opacity: 0.6,
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.primary,
   },
 });

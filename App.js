@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Animated,
-  Dimensions,
   Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -14,7 +13,7 @@ import GalleryScreen from './src/screens/GalleryScreen';
 import QRScannerScreen from './src/screens/QRScanner';
 import LoveLetterScreen from './src/screens/LoveLetterScreen';
 import QuizScreen from './src/screens/QuizScreen';
-import { COLORS, CLEAN, FONTS } from './src/theme';
+import { COLORS } from './src/theme';
 import { initSounds } from './src/utils/sound';
 
 const SCREENS = {
@@ -38,9 +37,9 @@ function Toast({ visible, message }) {
           duration: 400,
           useNativeDriver: true,
         }),
-        Animated.timing(translateY, {
+        Animated.spring(translateY, {
           toValue: 0,
-          duration: 400,
+          friction: 6,
           useNativeDriver: true,
         }),
       ]).start();
@@ -163,7 +162,7 @@ export default function App() {
       <Toast
         key={toastKey}
         visible={toastVisible}
-        message="🔒 Gallery is locked! Please scan your QR code first."
+        message="🔒 Gallery is locked! Scan the QR code first."
       />
     </View>
   );
@@ -178,21 +177,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Platform.OS === 'ios' ? 65 : 45,
     alignSelf: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 24,
-    shadowColor: COLORS.text,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 6,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 50,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
     zIndex: 999,
   },
   toastText: {
-    color: COLORS.text,
-    ...FONTS.body,
-    fontSize: 14,
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: '700',
     textAlign: 'center',
     letterSpacing: 0.3,
   },

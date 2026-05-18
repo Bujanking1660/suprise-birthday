@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { COLORS, CLEAN, FONTS } from '../theme';
+import { Quote, Sparkles } from 'lucide-react-native';
 
 // ─── Stat Card ───
 export function StatCard({ label, value, color }) {
@@ -28,9 +29,10 @@ export function ImageCard({ source, caption, color }) {
 export function QuoteCard({ text, color }) {
   return (
     <View style={[styles.galleryCard, styles.quoteCard, { backgroundColor: color }]}>
-      <Text style={styles.quoteMarks}>"</Text>
+      <View style={styles.quoteIconBg}>
+        <Quote size={20} color={COLORS.primary} />
+      </View>
       <Text style={styles.quoteText}>{text.replace(/"/g, '')}</Text>
-      <Text style={[styles.quoteMarks, { alignSelf: 'flex-end', marginTop: -10 }]}>"</Text>
     </View>
   );
 }
@@ -39,8 +41,10 @@ export function QuoteCard({ text, color }) {
 export function NoteCard({ title, text, color }) {
   return (
     <View style={[styles.galleryCard, styles.noteCard, { backgroundColor: color }]}>
-      <Text style={styles.noteTitle}>{title}</Text>
-      <View style={styles.noteDivider} />
+      <View style={styles.noteHeader}>
+        <Text style={styles.noteTitle}>{title}</Text>
+        <Sparkles size={20} color={COLORS.text} opacity={0.6} />
+      </View>
       <Text style={styles.noteText}>{text}</Text>
     </View>
   );
@@ -69,21 +73,22 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     ...CLEAN.card,
-    padding: 30,
+    padding: 24,
     alignItems: 'flex-start',
     justifyContent: 'center',
-    minHeight: 180,
+    minHeight: 160,
   },
   statValue: {
-    fontSize: 54,
-    ...FONTS.heading,
+    fontSize: 48,
+    fontWeight: '900',
+    color: COLORS.text,
     letterSpacing: -2,
     marginBottom: 8,
   },
   statLabel: {
     fontSize: 15,
-    ...FONTS.body,
-    opacity: 0.8,
+    fontWeight: '600',
+    color: COLORS.textSoft,
   },
 
   // ─── Gallery Cards ───
@@ -94,67 +99,74 @@ const styles = StyleSheet.create({
   },
   galleryImage: {
     width: '100%',
-    height: 250,
+    height: 280,
     resizeMode: 'cover',
   },
   captionBar: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.white,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
   },
   captionText: {
-    ...FONTS.body,
     fontSize: 14,
+    fontWeight: '500',
     color: COLORS.text,
+    lineHeight: 22,
   },
 
   // ─── Quote Card ───
   quoteCard: {
     padding: 30,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  quoteMarks: {
-    fontSize: 50,
-    fontFamily: 'Georgia',
-    color: COLORS.rose,
-    opacity: 0.3,
-    lineHeight: 50,
-    alignSelf: 'flex-start',
-    marginBottom: -10,
+  quoteIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   quoteText: {
-    fontSize: 18,
-    ...FONTS.body,
+    fontSize: 17,
+    fontWeight: '600',
     color: COLORS.text,
     textAlign: 'center',
     fontStyle: 'italic',
-    lineHeight: 28,
-    paddingHorizontal: 10,
+    lineHeight: 26,
   },
 
   // ─── Note Card ───
   noteCard: {
-    padding: 24,
+    padding: 28,
+  },
+  noteHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1.5,
+    borderBottomColor: 'rgba(45, 43, 85, 0.1)',
   },
   noteTitle: {
-    fontSize: 20,
-    ...FONTS.heading,
-    marginBottom: 10,
-  },
-  noteDivider: {
-    height: 2,
-    backgroundColor: COLORS.white,
-    opacity: 0.6,
-    marginBottom: 14,
-    width: 40,
-    borderRadius: 2,
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.text,
   },
   noteText: {
     fontSize: 15,
-    ...FONTS.body,
+    fontWeight: '500',
+    color: COLORS.text,
     lineHeight: 24,
+    opacity: 0.9,
   },
 
   // ─── Menu Button ───
@@ -175,19 +187,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   menuLabel: {
-    fontSize: 17,
-    ...FONTS.heading,
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.text,
   },
   menuSublabel: {
     fontSize: 13,
-    ...FONTS.small,
+    fontWeight: '500',
+    color: COLORS.textSoft,
     marginTop: 4,
-    opacity: 0.8,
   },
   menuArrow: {
-    fontSize: 28,
-    ...FONTS.heading,
-    color: COLORS.text,
-    opacity: 0.4,
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.textSoft,
   },
 });
