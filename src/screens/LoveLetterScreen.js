@@ -73,7 +73,7 @@ export default function LoveLetterScreen({ onBack }) {
       {!opened ? (
         <View style={styles.centerContent}>
           <Image
-            source={require('../../assets/icon.png')}
+            source={require('../../assets/maskot4.png')}
             style={styles.topIllustration}
             resizeMode="contain"
           />
@@ -112,7 +112,7 @@ export default function LoveLetterScreen({ onBack }) {
               {/* Icon top in letter */}
               <View style={styles.letterIllustrationTop}>
                 <Image
-                  source={require('../../assets/icon.png')}
+                  source={require('../../assets/maskot4.png')}
                   style={styles.letterIconSmall}
                   resizeMode="contain"
                 />
@@ -172,7 +172,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.shadow,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -240,8 +242,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     zIndex: 2,
-    shadowColor: COLORS.shadow,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
@@ -266,6 +270,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 10,
     paddingHorizontal: 20,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
   },
   tapHintText: {
     fontSize: 14,
@@ -280,7 +286,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     backgroundColor: COLORS.white,
     borderRadius: 32,
-    shadowColor: COLORS.shadow,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,

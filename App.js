@@ -8,20 +8,28 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Audio } from 'expo-av';
+import IntroScreen from './src/screens/IntroScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import GalleryScreen from './src/screens/GalleryScreen';
 import QRScannerScreen from './src/screens/QRScanner';
 import LoveLetterScreen from './src/screens/LoveLetterScreen';
 import QuizScreen from './src/screens/QuizScreen';
+import CandleScreen from './src/screens/CandleScreen';
+import LoveShopScreen from './src/screens/LoveShopScreen';
 import { COLORS } from './src/theme';
 import { initSounds } from './src/utils/sound';
+import { getCandlesBlown } from './src/utils/storage';
 
 const SCREENS = {
+  LOADING: 'loading',
+  INTRO: 'intro',
+  CANDLES: 'candles',
   DASHBOARD: 'dashboard',
   GALLERY: 'gallery',
   SCANNER: 'scanner',
   LOVE_LETTER: 'love_letter',
   QUIZ: 'quiz',
+  SHOP: 'shop',
 };
 
 // ─── Toast Component ───
@@ -79,15 +87,17 @@ function Toast({ visible, message }) {
 
 // ─── Main App ───
 export default function App() {
-  const [screen, setScreen] = useState(SCREENS.DASHBOARD);
+  const [screen, setScreen] = useState(SCREENS.LOADING);
   const [isLocked, setIsLocked] = useState(true);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastKey, setToastKey] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const soundRef = useRef(null);
 
   useEffect(() => {
     initSounds();
+    checkIntro();
 
-    let soundObject = null;
     const playBackgroundMusic = async () => {
       try {
         await Audio.setAudioModeAsync({
@@ -98,7 +108,7 @@ export default function App() {
           require('./assets/music/df_wahyumusicproduction-suara-hati-480282.mp3'),
           { shouldPlay: true, isLooping: true, volume: 0.5 }
         );
-        soundObject = sound;
+        soundRef.current = sound;
       } catch (error) {
         console.log('Error playing background music:', error);
       }
@@ -107,11 +117,28 @@ export default function App() {
     playBackgroundMusic();
 
     return () => {
-      if (soundObject) {
-        soundObject.unloadAsync();
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
       }
     };
   }, []);
+
+  const toggleMusic = async () => {
+    if (soundRef.current) {
+      const nextMuted = !isMuted;
+      setIsMuted(nextMuted);
+      await soundRef.current.setIsMutedAsync(nextMuted);
+    }
+  };
+
+  const checkIntro = async () => {
+    // Always show intro on fresh app open, then proceed to candles/dashboard
+    setScreen(SCREENS.INTRO);
+  };
+
+  const handleIntroEnter = async () => {
+    setScreen(SCREENS.DASHBOARD);
+  };
 
   const showToast = () => {
     setToastKey((k) => k + 1);
@@ -124,9 +151,19 @@ export default function App() {
     setScreen(SCREENS.DASHBOARD);
   };
 
+  if (screen === SCREENS.LOADING) return <View style={styles.root} />;
+
   return (
     <View style={styles.root}>
-      <StatusBar style="dark" />
+      <StatusBar style={screen === SCREENS.CANDLES || screen === SCREENS.INTRO ? "light" : "dark"} />
+
+      {screen === SCREENS.INTRO && (
+        <IntroScreen 
+          onEnter={handleIntroEnter} 
+          isMuted={isMuted} 
+          onToggleMusic={toggleMusic} 
+        />
+      )}
 
       {screen === SCREENS.DASHBOARD && (
         <DashboardScreen
@@ -135,6 +172,7 @@ export default function App() {
           onOpenGallery={() => setScreen(SCREENS.GALLERY)}
           onOpenLetter={() => setScreen(SCREENS.LOVE_LETTER)}
           onOpenQuiz={() => setScreen(SCREENS.QUIZ)}
+          onOpenShop={() => setScreen(SCREENS.SHOP)}
           onToast={showToast}
         />
       )}
@@ -156,6 +194,10 @@ export default function App() {
 
       {screen === SCREENS.QUIZ && (
         <QuizScreen onBack={() => setScreen(SCREENS.DASHBOARD)} />
+      )}
+      
+      {screen === SCREENS.SHOP && (
+        <LoveShopScreen onBack={() => setScreen(SCREENS.DASHBOARD)} />
       )}
 
       {/* Toast Overlay */}

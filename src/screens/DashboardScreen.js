@@ -1,23 +1,24 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Animated,
-  Platform,
-  Linking,
   Image,
-  Dimensions,
+  Platform,
+  Alert,
+  Linking,
+  Animated,
 } from 'react-native';
-import { COLORS, CLEAN, FONTS } from '../theme';
-import { STATS } from '../data';
+import { COLORS } from '../theme';
 import Confetti from '../components/Confetti';
+import TimeCapsuleModal from '../components/TimeCapsuleModal';
 import { playPop } from '../utils/sound';
-import { Lock, Image as ImageIcon, Mail, Gift, Camera, BookOpen, Flower2, Star } from 'lucide-react-native';
+import { Lock, Mail, Camera, Flower2, Store, Home, ArrowRight } from 'lucide-react-native';
 
-const { width } = Dimensions.get('window');
+const BIRTHDAY_FORTUNES = [];
+const WISH_JARS = [];
 
 export default function DashboardScreen({
   isLocked,
@@ -25,42 +26,21 @@ export default function DashboardScreen({
   onOpenGallery,
   onOpenLetter,
   onOpenQuiz,
+  onOpenShop,
   onToast,
 }) {
+  const [capsuleVisible, setCapsuleVisible] = useState(false);
+
+  // Simple floating animation for the banner icon
   const floatAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
-    // Float the icon illustration
     Animated.loop(
       Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -8,
-          duration: 1800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 1800,
-          useNativeDriver: true,
-        }),
+        Animated.timing(floatAnim, { toValue: -8, duration: 1500, useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: 0, duration: 1500, useNativeDriver: true }),
       ])
     ).start();
-
-    // Fade + scale in for header
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 900,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-    ]).start();
   }, []);
 
   const handleGallery = () => {
@@ -77,156 +57,140 @@ export default function DashboardScreen({
     Linking.openURL('https://digibouquet.vercel.app/');
   };
 
+  const handleFortune = () => {};
+  const handleWishJar = () => {};
+
   return (
     <View style={styles.container}>
       <Confetti />
-
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ─── Hero Header Card ─── */}
-        <Animated.View style={[styles.heroCard, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-          {/* Decorative circles */}
-          <View style={styles.heroBubble1} />
-          <View style={styles.heroBubble2} />
-
-          <View style={styles.heroTextBlock}>
-            <Text style={styles.heroLabel}>✨ Special Day</Text>
-            <Text style={styles.heroTitle}>Happy{'\n'}Birthday!</Text>
-            <Text style={styles.heroSub}>Hallo, Sayang 🎂</Text>
+      
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        {/* ─── Top Header (Profile) ─── */}
+        <View style={styles.header}>
+          <View style={styles.profileSection}>
+            <View style={styles.avatarBorder}>
+              <Image source={require('../../assets/maskot1.png')} style={styles.avatar} />
+            </View>
+            <View style={styles.profileText}>
+              <Text style={styles.greetingText}>Happy Birthday,</Text>
+              <Text style={styles.nameText}>Rasya! 🎂</Text>
+            </View>
           </View>
-
-          {/* Floating Illustration */}
-          <Animated.View style={[styles.heroIllustration, { transform: [{ translateY: floatAnim }] }]}>
-            <Image
-              source={require('../../assets/icon.png')}
-              style={styles.heroImage}
-              resizeMode="contain"
-            />
-          </Animated.View>
-        </Animated.View>
-
-        {/* ─── It's your birthday banner ─── */}
-        <View style={styles.bannerPill}>
-          <Text style={styles.bannerText}>🎉 It's your birthday... ↗</Text>
         </View>
 
-        {/* ─── Surprises Section ─── */}
-        <Text style={styles.sectionTitle}>Surprises For You 🎁</Text>
-
-        {/* Top Row */}
-        <View style={styles.gridRow}>
-          {/* Secret Gallery */}
-          <TouchableOpacity
-            style={[styles.gridCard, { backgroundColor: COLORS.purple1 }]}
-            activeOpacity={0.85}
-            onPress={handleGallery}
-          >
-            <View style={[styles.gridIconBg, { backgroundColor: COLORS.primary }]}>
-              {isLocked
-                ? <Lock size={22} color={COLORS.white} />
-                : <ImageIcon size={22} color={COLORS.white} />}
-            </View>
-            <Text style={styles.gridCardTitle}>
-              {isLocked ? 'Secret\nGallery' : 'Your\nGallery'}
-            </Text>
-            <View style={styles.gridArrow}>
-              <Text style={styles.gridArrowText}>↗</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Special Letter */}
-          <TouchableOpacity
-            style={[styles.gridCard, { backgroundColor: COLORS.pink }]}
-            activeOpacity={0.85}
-            onPress={() => { playPop(); onOpenLetter(); }}
-          >
-            <View style={[styles.gridIconBg, { backgroundColor: '#EC4899' }]}>
-              <Mail size={22} color={COLORS.white} />
-            </View>
-            <Text style={styles.gridCardTitle}>A Special{'\n'}Letter</Text>
-            <View style={styles.gridArrow}>
-              <Text style={styles.gridArrowText}>↗</Text>
-            </View>
-          </TouchableOpacity>
+        {/* ─── Big Banner ─── */}
+        <View style={styles.bannerContainer}>
+          <View style={styles.bannerTextContent}>
+            <Text style={styles.bannerTitle}>Time Capsule Ready!</Text>
+            <Text style={styles.bannerSub}>Save your memories and hopes for the next 20 years 🎁</Text>
+            <TouchableOpacity style={styles.bannerBtn} onPress={() => { playPop(); setCapsuleVisible(true); }}>
+              <Text style={styles.bannerBtnText}>Start Now</Text>
+              <ArrowRight size={16} color={COLORS.text} />
+            </TouchableOpacity>
+          </View>
+          <Animated.Image 
+            source={require('../../assets/maskot2.png')} 
+            style={[styles.bannerIllustration, { transform: [{ translateY: floatAnim }] }]} 
+            resizeMode="contain"
+          />
         </View>
 
-        {/* Bottom Row */}
-        <View style={styles.gridRow}>
-          {/* Quiz */}
-          <TouchableOpacity
-            style={[styles.gridCard, { backgroundColor: COLORS.mint }]}
-            activeOpacity={0.85}
-            onPress={() => { playPop(); onOpenQuiz(); }}
-          >
-            <View style={[styles.gridIconBg, { backgroundColor: '#10B981' }]}>
-              <BookOpen size={22} color={COLORS.white} />
+        {/* ─── Cards ─── */}
+        <View style={styles.listContainer}>
+          {/* Memory Quiz */}
+          <View style={[styles.card, { backgroundColor: COLORS.accent1 }]}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Memory Quiz</Text>
             </View>
-            <Text style={styles.gridCardTitle}>Our{'\n'}Memories</Text>
-            <View style={styles.gridArrow}>
-              <Text style={styles.gridArrowText}>↗</Text>
-            </View>
-          </TouchableOpacity>
+            <Image source={require('../../assets/maskot3.png')} style={styles.cardImage} resizeMode="contain" />
+            <TouchableOpacity style={styles.cardActionBtn} onPress={() => { playPop(); onOpenQuiz(); }}>
+              <Text style={styles.cardActionText}>Play Now</Text>
+              <ArrowRight size={16} color={COLORS.text} />
+            </TouchableOpacity>
+          </View>
 
           {/* Digital Bouquet */}
-          <TouchableOpacity
-            style={[styles.gridCard, { backgroundColor: COLORS.yellow }]}
-            activeOpacity={0.85}
-            onPress={handleBouquet}
-          >
-            <View style={[styles.gridIconBg, { backgroundColor: '#F59E0B' }]}>
-              <Flower2 size={22} color={COLORS.white} />
+          <View style={[styles.card, { backgroundColor: COLORS.secondary }]}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Digital Bouquet</Text>
+              <View style={styles.coinBadge}>
+                <Flower2 size={14} color={COLORS.text} />
+                <Text style={styles.coinBadgeText}>Flowers</Text>
+              </View>
             </View>
-            <Text style={styles.gridCardTitle}>Digital{'\n'}Bouquet</Text>
-            <View style={styles.gridArrow}>
-              <Text style={styles.gridArrowText}>↗</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* ─── My Feelings Section ─── */}
-        <Text style={styles.sectionTitle}>My Feelings To You 💜</Text>
-        <View style={[styles.feelingCard]}>
-          <View style={styles.feelingLeft}>
-            <Star size={28} color={COLORS.primary} fill={COLORS.primary} />
-            <Text style={styles.feelingLabel}>Love Level</Text>
+            <Image source={require('../../assets/maskot4.png')} style={styles.cardImage} resizeMode="contain" />
+            <TouchableOpacity style={styles.cardActionBtn} onPress={handleBouquet}>
+              <Text style={styles.cardActionText}>Open Bouquet</Text>
+              <ArrowRight size={16} color={COLORS.text} />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.feelingValue}>{STATS.loveLevel}</Text>
-        </View>
 
-        {/* ─── Locked Hint Card ─── */}
-        {isLocked && (
-          <View style={styles.hintCard}>
-            <View style={styles.hintIconBg}>
-              <Gift size={28} color={COLORS.primary} />
+          {/* Secret Gallery */}
+          <View style={[styles.card, { backgroundColor: COLORS.accent2 }]}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{isLocked ? 'Secret Gallery' : 'Your Gallery'}</Text>
+              <View style={styles.coinBadge}>
+                <Lock size={14} color={COLORS.text} />
+                <Text style={styles.coinBadgeText}>{isLocked ? 'Locked' : 'Unlocked'}</Text>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.hintTitle}>A Special Surprise 🎀</Text>
-              <Text style={styles.hintText}>
-                Find the QR Code gift and scan it to reveal your hidden memories.
-              </Text>
-            </View>
+            <Image source={require('../../assets/maskot1.png')} style={styles.cardImage} resizeMode="contain" />
+            <TouchableOpacity style={styles.cardActionBtn} onPress={handleGallery}>
+              <Text style={styles.cardActionText}>View Photos</Text>
+              <ArrowRight size={16} color={COLORS.text} />
+            </TouchableOpacity>
           </View>
-        )}
 
-        <View style={{ height: 120 }} />
+          {/* Love Letter */}
+          <View style={[styles.card, { backgroundColor: COLORS.accent3 }]}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Special Letter</Text>
+              <View style={styles.coinBadge}>
+                <Mail size={14} color={COLORS.text} />
+                <Text style={styles.coinBadgeText}>Read</Text>
+              </View>
+            </View>
+            <Image source={require('../../assets/maskot2.png')} style={styles.cardImage} resizeMode="contain" />
+            <TouchableOpacity style={styles.cardActionBtn} onPress={() => { playPop(); onOpenLetter(); }}>
+              <Text style={styles.cardActionText}>Open Letter</Text>
+              <ArrowRight size={16} color={COLORS.text} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* ─── Floating Scan QR Button ─── */}
-      <Animated.View
-        style={[styles.fabContainer, { transform: [{ translateY: floatAnim }] }]}
-      >
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => { playPop(); onScanQR(); }}
-          activeOpacity={0.85}
-        >
-          <Camera size={22} color={COLORS.white} />
-          <Text style={styles.fabLabel}>Scan QR</Text>
-        </TouchableOpacity>
-      </Animated.View>
+      {/* ─── Bottom Navigation (Dana-style) ─── */}
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navItem}>
+            <Home size={26} color={COLORS.primary} />
+            <Text style={[styles.navLabel, { color: COLORS.primary }]}>Home</Text>
+          </TouchableOpacity>
+
+          {isLocked ? (
+            <TouchableOpacity style={styles.qrBtnContainer} onPress={() => { playPop(); onScanQR(); }} activeOpacity={0.85}>
+              <View style={styles.qrBtn}>
+                <Camera size={28} color={COLORS.white} />
+              </View>
+              <Text style={[styles.navLabel, { marginTop: 6 }]}>Scan QR</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.qrBtnPlaceholder} />
+          )}
+
+          <TouchableOpacity style={styles.navItem} onPress={() => { playPop(); onOpenShop(); }}>
+            <Store size={26} color={COLORS.textSoft} />
+            <Text style={styles.navLabel}>Toko</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <TimeCapsuleModal 
+        visible={capsuleVisible} 
+        onClose={() => setCapsuleVisible(false)} 
+      />
     </View>
   );
 }
@@ -236,242 +200,222 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg,
   },
-  scroll: {
-    flex: 1,
-  },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 58 : 36,
-    paddingBottom: 30,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
   },
 
-  // ─── Hero Card ───
-  heroCard: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 32,
-    padding: 28,
-    paddingBottom: 24,
-    marginBottom: 16,
+  // Header
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 28,
+  },
+  profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    overflow: 'hidden',
-    minHeight: 180,
   },
-  heroBubble1: {
-    position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    top: -40,
-    right: -30,
+  avatarBorder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    padding: 2,
+    backgroundColor: COLORS.white,
+    marginRight: 12,
   },
-  heroBubble2: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    bottom: -10,
-    left: 10,
-  },
-  heroTextBlock: {
-    flex: 1,
-    zIndex: 2,
-  },
-  heroLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.85)',
-    marginBottom: 6,
-    letterSpacing: 0.4,
-  },
-  heroTitle: {
-    fontSize: 34,
-    fontWeight: '900',
-    color: COLORS.white,
-    lineHeight: 38,
-    letterSpacing: -0.5,
-    marginBottom: 8,
-  },
-  heroSub: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.88)',
-  },
-  heroIllustration: {
-    width: 110,
-    height: 110,
-    zIndex: 2,
-  },
-  heroImage: {
+  avatar: {
     width: '100%',
     height: '100%',
-    borderRadius: 55,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
+    backgroundColor: COLORS.secondary,
   },
-
-  // ─── Banner Pill ───
-  bannerPill: {
-    backgroundColor: COLORS.purple2,
-    borderRadius: 50,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginBottom: 24,
+  greetingText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSoft,
   },
-  bannerText: {
-    fontSize: 14,
-    fontWeight: '700',
+  nameText: {
+    fontSize: 18,
+    fontWeight: '900',
     color: COLORS.text,
   },
 
-  // ─── Sections ───
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 14,
-    letterSpacing: -0.2,
-  },
-
-  // ─── Grid Cards ───
-  gridRow: {
+  // Banner
+  bannerContainer: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 32,
+    padding: 24,
     flexDirection: 'row',
-    gap: 14,
-    marginBottom: 14,
-  },
-  gridCard: {
-    flex: 1,
-    borderRadius: 24,
-    padding: 18,
-    minHeight: 150,
-    justifyContent: 'space-between',
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  gridIconBg: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 32,
+    overflow: 'hidden',
+  },
+  bannerTextContent: {
+    flex: 1,
+    zIndex: 2,
+  },
+  bannerTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: COLORS.white,
     marginBottom: 8,
   },
-  gridCardTitle: {
-    fontSize: 15,
+  bannerSub: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '500',
+    marginBottom: 16,
+    paddingRight: 20,
+  },
+  bannerBtn: {
+    backgroundColor: COLORS.white,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+  },
+  bannerBtnText: {
+    fontSize: 14,
     fontWeight: '800',
     color: COLORS.text,
-    lineHeight: 20,
-    flex: 1,
+    marginRight: 6,
+  },
+  bannerIllustration: {
+    position: 'absolute',
+    right: -20,
+    bottom: -10,
+    width: 140,
+    height: 140,
+    zIndex: 1,
+  },
+
+  // List Cards
+  listContainer: {
+    gap: 20,
+  },
+  card: {
+    borderRadius: 32,
+    padding: 24,
+    position: 'relative',
+    overflow: 'hidden',
+    minHeight: 220,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0,0,0,0.03)',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    zIndex: 2,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.text,
+    maxWidth: '60%',
+  },
+  coinBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+  },
+  coinBadgeText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginLeft: 4,
+  },
+  cardImage: {
+    position: 'absolute',
+    right: -10,
+    top: 40,
+    width: 160,
+    height: 160,
+    zIndex: 1,
+  },
+  cardActionBtn: {
+    position: 'absolute',
+    bottom: 24,
+    left: 24,
+    backgroundColor: COLORS.white,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    zIndex: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  cardActionText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginRight: 6,
+  },
+
+  // Bottom Nav Dana-Style
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1.5,
+    borderTopColor: COLORS.border,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingTop: 12,
+    zIndex: 10,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 70,
+  },
+  navLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.textSoft,
     marginTop: 4,
   },
-  gridArrow: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    justifyContent: 'center',
+  qrBtnContainer: {
     alignItems: 'center',
-    alignSelf: 'flex-end',
+    justifyContent: 'flex-end',
+    marginTop: -30,
   },
-  gridArrowText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-
-  // ─── Feeling Card ───
-  feelingCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 24,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  feelingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  feelingLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginLeft: 12,
-  },
-  feelingValue: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: COLORS.primary,
-    letterSpacing: -1,
-  },
-
-  // ─── Hint Card ───
-  hintCard: {
-    backgroundColor: COLORS.purple1,
-    borderRadius: 24,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginBottom: 10,
-  },
-  hintIconBg: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  hintTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  hintText: {
-    fontSize: 13,
-    color: COLORS.textSoft,
-    lineHeight: 19,
-    fontWeight: '400',
-  },
-
-  // ─── FAB ───
-  fabContainer: {
-    position: 'absolute',
-    bottom: 28,
-    alignSelf: 'center',
-  },
-  fab: {
+  qrBtn: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: COLORS.primary,
-    flexDirection: 'row',
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 50,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
   },
-  fabLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.white,
-    marginLeft: 4,
+  qrBtnPlaceholder: {
+    width: 70,
   },
 });

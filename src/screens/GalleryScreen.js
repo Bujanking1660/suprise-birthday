@@ -42,7 +42,7 @@ export default function GalleryScreen({ onBack }) {
       {/* ─── Unlocked Banner ─── */}
       <View style={styles.banner}>
         <Image
-          source={require('../../assets/icon.png')}
+          source={require('../../assets/maskot2.png')}
           style={styles.bannerIcon}
           resizeMode="contain"
         />
@@ -95,7 +95,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.shadow,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -111,7 +113,9 @@ const styles = StyleSheet.create({
   banner: {
     backgroundColor: COLORS.primary,
     marginHorizontal: 20,
-    borderRadius: 20,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     paddingVertical: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -148,7 +152,9 @@ const styles = StyleSheet.create({
   // ─── Footer ───
   footerCard: {
     backgroundColor: COLORS.primary,
-    borderRadius: 28,
+    borderRadius: 32,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     padding: 36,
     alignItems: 'center',
     marginTop: 10,

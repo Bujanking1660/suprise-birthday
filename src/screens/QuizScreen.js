@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import { COLORS, CLEAN, FONTS } from '../theme';
 import Confetti from '../components/Confetti';
 import { playPop, playSparkle } from '../utils/sound';
+import { addCoins, getQuizCompleted, setQuizCompleted } from '../utils/storage';
 import { Heart, Sparkles, ChevronLeft } from 'lucide-react-native';
 
 const QUIZ_QUESTIONS = [
@@ -43,17 +44,33 @@ export default function QuizScreen({ onBack }) {
   const [currentQ, setCurrentQ] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
-  const handleAnswer = (index) => {
+  useEffect(() => {
+    checkCompleted();
+  }, []);
+
+  const checkCompleted = async () => {
+    const isCompleted = await getQuizCompleted();
+    setAlreadyCompleted(isCompleted);
+  };
+
+  const handleAnswer = async (index) => {
     playPop();
     const isCorrect = index === QUIZ_QUESTIONS[currentQ].correctIndex;
-    if (isCorrect) setScore(score + 1);
+    const newScore = score + (isCorrect ? 1 : 0);
+    if (isCorrect) setScore(newScore);
 
     if (currentQ < QUIZ_QUESTIONS.length - 1) {
       setCurrentQ(currentQ + 1);
     } else {
-      if (score + (isCorrect ? 1 : 0) === QUIZ_QUESTIONS.length) {
+      if (newScore === QUIZ_QUESTIONS.length) {
         playSparkle();
+        if (!alreadyCompleted) {
+          await addCoins(100);
+          await setQuizCompleted();
+          setAlreadyCompleted(true);
+        }
       }
       setShowResult(true);
     }
@@ -87,7 +104,7 @@ export default function QuizScreen({ onBack }) {
           {/* ─── Illustration ─── */}
           <View style={styles.illustrationRow}>
             <Image
-              source={require('../../assets/icon.png')}
+              source={require('../../assets/maskot2.png')}
               style={styles.illustration}
               resizeMode="contain"
             />
@@ -139,7 +156,7 @@ export default function QuizScreen({ onBack }) {
         <View style={styles.resultContainer}>
           {score === QUIZ_QUESTIONS.length && <Confetti />}
           <Image
-            source={require('../../assets/icon.png')}
+            source={require('../../assets/maskot2.png')}
             style={styles.resultIllustration}
             resizeMode="contain"
           />
@@ -156,7 +173,7 @@ export default function QuizScreen({ onBack }) {
             </Text>
             <Text style={styles.resultDesc}>
               {score === QUIZ_QUESTIONS.length
-                ? "You know us perfectly! I love you so much. If you haven't yet, find the QR code on the toybox and scan it!"
+                ? "You know us perfectly! I love you so much. If you haven't yet, find the QR code on the toybox and scan it! (+100 Love Coins)"
                 : "Aww, almost! But I still love you with all my heart. Try again!"}
             </Text>
 
@@ -195,7 +212,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.shadow,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -252,9 +271,10 @@ const styles = StyleSheet.create({
   // ─── Question Card ───
   questionCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 24,
-    padding: 22,
-    marginBottom: 16,
+    borderRadius: 32,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    padding: 24,
     shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
